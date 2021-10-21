@@ -1,0 +1,27 @@
+version: "3.9"
+
+services:
+  catalogo-produtos:
+    image: csluispaulo/catalogo-produtos
+    command: ["/wait-for-it.sh", "catalogo-mysql:3306", "-t", "30", "--", "java", "-jar", "api.jar"]
+    environment:
+      DB_HOST: catalogo-mysql
+    ports:
+      - "9999:9999"
+    networks:
+      - catalogo-network
+    depends_on:
+      - catalogo-mysql
+   
+  catalogo-mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: "java"      
+    ports:
+      - "3306:3306"
+    networks:
+      - catalogo-network        
+
+networks:
+  catalogo-network:
+    driver: bridge      
