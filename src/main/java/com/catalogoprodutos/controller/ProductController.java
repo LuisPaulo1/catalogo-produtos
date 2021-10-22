@@ -59,7 +59,7 @@ public class ProductController implements ProductControllerOpenAPI {
 	@PutMapping(value = "/{id}")
 	public ResponseEntity<ProductDTO> update(@PathVariable String id, @Valid @RequestBody ProductInputDTO productInputDTO) {		
 		ProductDTO productDTO = service.atualizar(id, productInputDTO);
-		return ResponseEntity.ok().body(productDTO);			
+		return ResponseEntity.ok(productDTO);			
 	}
 	
 	@DeleteMapping(value = "/{id}")

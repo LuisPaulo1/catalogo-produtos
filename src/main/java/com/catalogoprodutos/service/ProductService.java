@@ -3,7 +3,6 @@ package com.catalogoprodutos.service;
 import static com.catalogoprodutos.repository.ProductSpecs.usandoFiltro;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
@@ -35,14 +34,11 @@ public class ProductService {
 		return products.stream().map(product -> new ProductDTO(product)).collect(Collectors.toList());
 	}
 
-	public ProductDTO buscarPorId(String id) throws ResourceNotFoundException {		
-		Optional<Product> product = repository.findById(id);
+	public ProductDTO buscarPorId(String id) {
+		Product product = repository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException());
 		
-		if(product.isEmpty()) {
-			throw new ResourceNotFoundException();
-		}
-		
-		return new ProductDTO(product.get());			
+		return new ProductDTO(product);
 	}
 	
 	@Transactional
@@ -54,28 +50,21 @@ public class ProductService {
 	}
 	
 	@Transactional
-	public ProductDTO atualizar(String id, ProductInputDTO productInputDTO) throws ResourceNotFoundException {
-		Optional<Product> productAtual = repository.findById(id);
+	public ProductDTO atualizar(String id, ProductInputDTO productInputDTO) {
+		Product productAtual = repository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException());		
 		
-		if(productAtual.isEmpty()) {
-			throw new ResourceNotFoundException();
-		}		
-		
-		Product product = productAtual.get();
-		BeanUtils.copyProperties(productInputDTO, product);
-		product = repository.save(product);
-		return new ProductDTO(product);
+		BeanUtils.copyProperties(productInputDTO, productAtual);
+		productAtual = repository.save(productAtual);
+		return new ProductDTO(productAtual);
 	}
 	
 	@Transactional
-	public void excluir(String id) throws ResourceNotFoundException {		
-		Optional<Product> product = repository.findById(id);
-		
-		if(product.isEmpty()) {
-			throw new ResourceNotFoundException();
-		}
-		
-		repository.deleteById(id);		
+	public void excluir(String id) {		
+		Product product = repository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException());
+					
+		repository.deleteById(product.getId());		
 	}	
 	
 }
