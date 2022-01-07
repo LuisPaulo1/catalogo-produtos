@@ -21,7 +21,7 @@ http://localhost:9999/swagger-ui/index.html
 - Maven
 - Mysql
 - Flyway
-- JUnit 5 (Teste de Integração)
+- JUnit 5
 - Swagger OpenAPI 3.0
 - Docker
 
