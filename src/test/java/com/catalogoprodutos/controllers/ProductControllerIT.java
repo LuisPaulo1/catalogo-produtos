@@ -1,4 +1,4 @@
-package com.catalogoprodutos;
+package com.catalogoprodutos.controllers;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 
 import javax.transaction.Transactional;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -18,7 +19,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
-import com.catalogoprodutos.controller.dto.ProductDTO;
+import com.catalogoprodutos.controller.dto.ProductInputDTO;
+import com.catalogoprodutos.util.Factory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @SpringBootTest
@@ -31,6 +33,17 @@ class ProductControllerIT {
 	
 	@Autowired
 	private ObjectMapper objectMapper;
+	
+	private String existingId;
+	private String nonExistingId;
+	private ProductInputDTO productInputDTO;
+	
+	@BeforeEach
+	void setUp() throws Exception {
+		existingId = "1";
+		nonExistingId = "100";
+		productInputDTO = Factory.createProductInputDTO();
+	}
 
 	@Test
 	void findAllDeveriaRetornarOsRecursosComStatusOk() throws Exception {
@@ -55,10 +68,8 @@ class ProductControllerIT {
 	@Test
 	void findByIdDeveriaRetornarStatusOkQuandoIdExistir() throws Exception {
 		
-		Long idExistente = 1L;
-		
 		ResultActions result =
-				mockMvc.perform(get("/products/{id}", idExistente)
+				mockMvc.perform(get("/products/{id}", existingId)
 					.contentType(MediaType.APPLICATION_JSON));
 		
 		result.andExpectAll(status().isOk());		
@@ -67,20 +78,17 @@ class ProductControllerIT {
 	@Test
 	void findByIdDeveriaRetornarNotFoundQuandoIdNaoExistir() throws Exception {
 		
-		Long idInexistente = 100L;
-		
 		ResultActions result =
-				mockMvc.perform(get("/products/{id}", idInexistente)
+				mockMvc.perform(get("/products/{id}", nonExistingId)
 					.contentType(MediaType.APPLICATION_JSON));
 		
 		result.andExpectAll(status().isNotFound());		
 	}
 	
 	@Test
-	public void insertDeveriaInserirRecursoRetornandoStatus201() throws Exception {
+	public void insertDeveriaInserirRecursoRetornandoStatusCreated() throws Exception {
 		
-		ProductDTO product = new ProductDTO("Mouse", "Mouse gamer", BigDecimal.valueOf(200));
-		String jsonBody = objectMapper.writeValueAsString(product);
+		String jsonBody = objectMapper.writeValueAsString(productInputDTO);
 		
 		ResultActions result =
 				mockMvc.perform(post("/products")
@@ -95,7 +103,7 @@ class ProductControllerIT {
 	@Test
 	public void insertDeveriaRetornarBadRequestQuandoCampoNomeNaoInformado() throws Exception {
 		
-		ProductDTO product = new ProductDTO(" ", "Mouse gamer", BigDecimal.valueOf(200));
+		ProductInputDTO product = new ProductInputDTO(" ", "Mouse gamer", BigDecimal.valueOf(200));
 		String jsonBody = objectMapper.writeValueAsString(product);
 		
 		ResultActions result =
@@ -110,7 +118,7 @@ class ProductControllerIT {
 	@Test
 	public void insertDeveriaRetornarBadRequestQuandoCampoDescricaoNaoInformado() throws Exception {
 		
-		ProductDTO product = new ProductDTO("Mouse", " ", BigDecimal.valueOf(200));
+		ProductInputDTO product = new ProductInputDTO("Mouse", " ", BigDecimal.valueOf(200));
 		String jsonBody = objectMapper.writeValueAsString(product);
 		
 		ResultActions result =
@@ -126,7 +134,7 @@ class ProductControllerIT {
 	@Test
 	public void insertDeveriaRetornarBadRequestQuandoCampoPrecoNaoInformado() throws Exception {
 		
-		ProductDTO product = new ProductDTO("Mouse", "Mouse gamer", null);
+		ProductInputDTO product = new ProductInputDTO("Mouse", "Mouse gamer", null);
 		String jsonBody = objectMapper.writeValueAsString(product);
 		
 		ResultActions result =
@@ -141,7 +149,7 @@ class ProductControllerIT {
 	@Test
 	public void insertDeveriaRetornarBadRequestQuandoCampoPrecoForNegativo() throws Exception {
 		
-		ProductDTO product = new ProductDTO("Mouse", "Mouse gamer", BigDecimal.valueOf(-200));
+		ProductInputDTO product = new ProductInputDTO("Mouse", "Mouse gamer", BigDecimal.valueOf(-200));
 		String jsonBody = objectMapper.writeValueAsString(product);
 		
 		ResultActions result =
@@ -156,13 +164,10 @@ class ProductControllerIT {
 	@Test
 	public void updateDeveriaAtualizarRecursoQuandoIdExistir() throws Exception {
 		
-		Long idExistente = 1L;
-		
-		ProductDTO product = new ProductDTO("Mouse", "Mouse gamer", BigDecimal.valueOf(200));
-		String jsonBody = objectMapper.writeValueAsString(product);
+		String jsonBody = objectMapper.writeValueAsString(productInputDTO);
 		
 		ResultActions result =
-				mockMvc.perform(put("/products/{id}", idExistente)
+				mockMvc.perform(put("/products/{id}", existingId)
 					.content(jsonBody)
 					.contentType(MediaType.APPLICATION_JSON)
 					.accept(MediaType.APPLICATION_JSON));
@@ -173,13 +178,10 @@ class ProductControllerIT {
 	@Test
 	public void updateDeveriaRetornarNotFoundQuandoIdNaoExistir() throws Exception {
 		
-		Long idInexistente = 100L;
-		
-		ProductDTO product = new ProductDTO("Mouse", "Mouse gamer", BigDecimal.valueOf(200));
-		String jsonBody = objectMapper.writeValueAsString(product);
+		String jsonBody = objectMapper.writeValueAsString(productInputDTO);
 		
 		ResultActions result =
-				mockMvc.perform(put("/products/{id}", idInexistente)
+				mockMvc.perform(put("/products/{id}", nonExistingId)
 					.content(jsonBody)
 					.contentType(MediaType.APPLICATION_JSON)
 					.accept(MediaType.APPLICATION_JSON));
@@ -190,25 +192,19 @@ class ProductControllerIT {
 	@Test
 	public void deleteDeveriaRetornarStatusOkQuandoIdExistir() throws Exception {
 		
-		Long idExistente = 1L;
-		
 		ResultActions result =
-				mockMvc.perform(delete("/products/{id}", idExistente));
+				mockMvc.perform(delete("/products/{id}", existingId));
 
 		result.andExpect(status().isOk());
 	}
 	
 	@Test
-	public void deleteDeveriaRetornarNotFoundQuandoIdExistir() throws Exception {
-		
-		Long idInexistente = 100L;
+	public void deleteDeveriaRetornarNotFoundQuandoIdNaoExistir() throws Exception {
 		
 		ResultActions result =
-				mockMvc.perform(delete("/products/{id}", idInexistente));
+				mockMvc.perform(delete("/products/{id}", nonExistingId));
 
 		result.andExpect(status().isNotFound());
 	}
-	
-	
 
 }

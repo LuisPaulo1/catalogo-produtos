@@ -7,11 +7,13 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
+@AllArgsConstructor
 public class ProductInputDTO {
 	
 	@ApiModelProperty(example = "iPhone 12", required = true)

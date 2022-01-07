@@ -9,6 +9,9 @@ import javax.transaction.Transactional;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.catalogoprodutos.controller.dto.ProductDTO;
@@ -29,15 +32,18 @@ public class ProductService {
 		return products.stream().map(product -> new ProductDTO(product)).collect(Collectors.toList());
 	}
 	
+	public Page<ProductDTO> listarPorPagina(Pageable pageable) {
+		Page<Product> products = repository.findAll(pageable);
+		return products.map(product -> new ProductDTO(product));
+	}
+	
 	public List<ProductDTO> listarPorFiltro(ProductFilter productFilter) {
 		List<Product> products = repository.findAll(usandoFiltro(productFilter));
 		return products.stream().map(product -> new ProductDTO(product)).collect(Collectors.toList());
 	}
 
 	public ProductDTO buscarPorId(String id) {
-		Product product = repository.findById(id)
-				.orElseThrow(() -> new ResourceNotFoundException());
-		
+		Product product = findProduct(id);		
 		return new ProductDTO(product);
 	}
 	
@@ -51,20 +57,26 @@ public class ProductService {
 	
 	@Transactional
 	public ProductDTO atualizar(String id, ProductInputDTO productInputDTO) {
-		Product productAtual = repository.findById(id)
-				.orElseThrow(() -> new ResourceNotFoundException());		
-		
+		Product productAtual = findProduct(id);		
 		BeanUtils.copyProperties(productInputDTO, productAtual);
 		productAtual = repository.save(productAtual);
 		return new ProductDTO(productAtual);
 	}
 	
 	@Transactional
-	public void excluir(String id) {		
+	public void excluir(String id) {
+		try {
+			repository.deleteById(id);
+		}
+		catch (EmptyResultDataAccessException e) {
+			throw new ResourceNotFoundException();
+		}
+	}
+	
+	private Product findProduct(String id) {
 		Product product = repository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException());
-					
-		repository.deleteById(product.getId());		
-	}	
+		return product;
+	}
 	
 }

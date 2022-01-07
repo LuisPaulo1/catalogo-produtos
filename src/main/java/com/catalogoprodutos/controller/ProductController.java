@@ -6,6 +6,8 @@ import java.util.List;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -37,6 +39,12 @@ public class ProductController implements ProductControllerOpenAPI {
 		 return ResponseEntity.ok(produtos);
 	}
 	
+	@GetMapping("/page")
+	public ResponseEntity<Page<ProductDTO>> findAllByPage(Pageable pageable) {
+		 Page<ProductDTO> produtos = service.listarPorPagina(pageable);
+		 return ResponseEntity.ok(produtos);
+	}
+	
 	@GetMapping("/search")
 	public ResponseEntity<List<ProductDTO>> findByFilter(ProductFilter productFilter) {
 		List<ProductDTO> produtos = service.listarPorFiltro(productFilter);
@@ -50,14 +58,14 @@ public class ProductController implements ProductControllerOpenAPI {
 	}
 	
 	@PostMapping
-	public ResponseEntity<ProductDTO> insert(@Valid @RequestBody ProductInputDTO productInputDTO) {
+	public ResponseEntity<ProductDTO> insert(@RequestBody @Valid ProductInputDTO productInputDTO) {
 		ProductDTO productDTO = service.salvar(productInputDTO);
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(productDTO.getId()).toUri();
 		return ResponseEntity.created(uri).body(productDTO);
 	}
 	
 	@PutMapping(value = "/{id}")
-	public ResponseEntity<ProductDTO> update(@PathVariable String id, @Valid @RequestBody ProductInputDTO productInputDTO) {		
+	public ResponseEntity<ProductDTO> update(@PathVariable String id, @RequestBody @Valid ProductInputDTO productInputDTO) {		
 		ProductDTO productDTO = service.atualizar(id, productInputDTO);
 		return ResponseEntity.ok(productDTO);			
 	}
