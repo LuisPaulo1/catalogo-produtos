@@ -17,6 +17,7 @@ http://localhost:9999/swagger-ui/index.html
 - Java 11
 - Spring (boot, web, data)
 - JPA / Hibernate
+- Bean Validation
 - Lombok
 - Maven
 - Mysql
