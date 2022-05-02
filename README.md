@@ -15,7 +15,7 @@ http://localhost:9999/swagger-ui/index.html
 
 ## Tecnologias utilizadas
 - Java 11
-- Spring (boot, web, data)
+- Spring (boot, web, data, validation)
 - JPA / Hibernate
 - Lombok
 - Maven
