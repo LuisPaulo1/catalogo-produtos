@@ -8,6 +8,7 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -23,7 +24,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import com.catalogoprodutos.controller.dto.ProductDTO;
 import com.catalogoprodutos.controller.dto.ProductFilter;
 import com.catalogoprodutos.controller.dto.ProductInputDTO;
-import com.catalogoprodutos.controller.openapi.ProductControllerOpenAPI;
+import com.catalogoprodutos.controller.openapi.controller.ProductControllerOpenAPI;
 import com.catalogoprodutos.service.ProductService;
 
 @RestController
@@ -40,7 +41,7 @@ public class ProductController implements ProductControllerOpenAPI {
 	}
 	
 	@GetMapping("/page")
-	public ResponseEntity<Page<ProductDTO>> findAllByPage(Pageable pageable) {
+	public ResponseEntity<Page<ProductDTO>> findAllByPage(@PageableDefault(size = 10) Pageable pageable) {
 		 Page<ProductDTO> produtos = service.listarPorPagina(pageable);
 		 return ResponseEntity.ok(produtos);
 	}

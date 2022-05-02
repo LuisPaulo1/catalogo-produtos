@@ -8,8 +8,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.math.BigDecimal;
 
-import javax.transaction.Transactional;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +16,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.catalogoprodutos.controller.dto.ProductInputDTO;
 import com.catalogoprodutos.util.Factory;
@@ -50,6 +49,16 @@ class ProductControllerIT {
 		
 		ResultActions result =
 				mockMvc.perform(get("/products")
+					.contentType(MediaType.APPLICATION_JSON));
+		
+		result.andExpectAll(status().isOk());		
+	}
+	
+	@Test
+	void findAllByPageDeveriaRetornarOsRecursosComStatusOk() throws Exception {
+		
+		ResultActions result =
+				mockMvc.perform(get("/products/page")
 					.contentType(MediaType.APPLICATION_JSON));
 		
 		result.andExpectAll(status().isOk());		

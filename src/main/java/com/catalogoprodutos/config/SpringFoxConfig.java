@@ -6,13 +6,20 @@ import java.util.function.Consumer;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import com.catalogoprodutos.controller.dto.ProductDTO;
 import com.catalogoprodutos.controller.exception.StandardError;
+import com.catalogoprodutos.controller.openapi.model.PageableModelOpenApi;
+import com.catalogoprodutos.controller.openapi.model.ProductsModelOpenApi;
 import com.fasterxml.classmate.TypeResolver;
 
 import springfox.documentation.builders.ApiInfoBuilder;
@@ -20,6 +27,8 @@ import springfox.documentation.builders.RepresentationBuilder;
 import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.builders.ResponseBuilder;
 import springfox.documentation.oas.annotations.EnableOpenApi;
+import springfox.documentation.schema.AlternateTypeRule;
+import springfox.documentation.schema.AlternateTypeRules;
 import springfox.documentation.service.ApiInfo;
 import springfox.documentation.service.Response;
 import springfox.documentation.service.Tag;
@@ -46,8 +55,18 @@ public class SpringFoxConfig implements WebMvcConfigurer {
 				.globalResponses(HttpMethod.POST, globalPostPutResponseMessages())
 				.globalResponses(HttpMethod.PUT, globalPostPutResponseMessages())
 				.globalResponses(HttpMethod.DELETE, globalDeleteResponseMessages())				
-				.additionalModels(typeResolver.resolve(StandardError.class));
-	}	
+				.additionalModels(typeResolver.resolve(StandardError.class))
+				.directModelSubstitute(Pageable.class, PageableModelOpenApi.class)
+				.alternateTypeRules(newRule(Page.class, ProductDTO.class, ProductsModelOpenApi.class));
+	}
+	
+	private <T, M, K> AlternateTypeRule newRule(Class<T> returnType, Class<M> modelObject, Class<K> modelObjectOpenApi) {
+		var typeResolver = new TypeResolver();
+		return AlternateTypeRules.newRule(
+				typeResolver.resolve(ResponseEntity.class, typeResolver.resolve(returnType, modelObject)),
+				typeResolver.resolve(modelObjectOpenApi),
+				Ordered.HIGHEST_PRECEDENCE);		
+	}
 	
 	private ApiInfo apiInfo() {
 		return new ApiInfoBuilder()

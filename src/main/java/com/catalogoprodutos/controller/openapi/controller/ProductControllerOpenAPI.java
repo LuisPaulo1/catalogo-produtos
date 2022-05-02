@@ -1,7 +1,9 @@
-package com.catalogoprodutos.controller.openapi;
+package com.catalogoprodutos.controller.openapi.controller;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 
 import com.catalogoprodutos.controller.dto.ProductDTO;
@@ -20,6 +22,9 @@ public interface ProductControllerOpenAPI {
 	
 	@ApiOperation("Lista os produtos")
 	ResponseEntity<List<ProductDTO>> findAll();
+	
+	@ApiOperation("Lista os produtos por página")
+	ResponseEntity<Page<ProductDTO>> findAllByPage(Pageable pageable);
 	
 	@ApiOperation("Lista os produtos por filtro")
 	ResponseEntity<List<ProductDTO>> findByFilter(ProductFilter productFilter);

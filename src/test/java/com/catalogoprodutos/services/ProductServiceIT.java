@@ -2,13 +2,12 @@ package com.catalogoprodutos.services;
 
 import java.util.List;
 
-import javax.transaction.Transactional;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.catalogoprodutos.controller.dto.ProductDTO;
 import com.catalogoprodutos.repository.ProductRepository;

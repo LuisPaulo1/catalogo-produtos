@@ -5,14 +5,13 @@ import static com.catalogoprodutos.repository.ProductSpecs.usandoFiltro;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.transaction.Transactional;
-
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.catalogoprodutos.controller.dto.ProductDTO;
 import com.catalogoprodutos.controller.dto.ProductFilter;

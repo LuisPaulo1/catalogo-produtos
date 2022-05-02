@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -48,6 +49,7 @@ public class ProductControllerTests {
 	private ProductDTO productDTO;
 	private ProductInputDTO productInputDTO;
 	private List<ProductDTO> list;
+	private PageImpl<ProductDTO> page;
 	
 	@BeforeEach
 	void setUp() throws Exception {
@@ -56,8 +58,10 @@ public class ProductControllerTests {
 		productDTO = Factory.createProductDTO();
 		productInputDTO = Factory.createProductInputDTO();
 		list = new ArrayList<>();
+		page = new PageImpl<>(List.of(productDTO));
 		
 		when(service.listar()).thenReturn(list);
+		when(service.listarPorPagina(any())).thenReturn(page);
 		when(service.listarPorFiltro(any())).thenReturn(list);
 
 		when(service.buscarPorId(existingId)).thenReturn(productDTO);
@@ -77,6 +81,16 @@ public class ProductControllerTests {
 		
 		ResultActions result =
 				mockMvc.perform(get("/products")
+					.contentType(MediaType.APPLICATION_JSON));
+		
+		result.andExpectAll(status().isOk());		
+	}
+	
+	@Test
+	void findAllByPageDeveriaRetornarOsRecursosComStatusOk() throws Exception {
+		
+		ResultActions result =
+				mockMvc.perform(get("/products/page")
 					.contentType(MediaType.APPLICATION_JSON));
 		
 		result.andExpectAll(status().isOk());		
